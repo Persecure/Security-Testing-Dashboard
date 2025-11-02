@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Enumeration</title>
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        // Function to update commands dynamically
+        function updateCommands() {
+            let ip = document.getElementById("ipInput").value || "<IP>";
+        
+            let url = document.getElementById("urlInput").value || "<URL>";
+            let parameter = document.getElementById("parameterInput").value || "<PARAMETER>";
+            let hheader = document.getElementById("hheaderInput").value || "<HHEADER>";
+            let commandElements = document.querySelectorAll(".command");
+
+            commandElements.forEach(element => {
+                let baseCommand = element.getAttribute("data-base");
+                element.textContent = baseCommand
+                    .replace("{IP}", ip)
+                    
+                    .replace("{URL}", url)
+                    .replace("{PARAMETER}", parameter)
+                    .replace("{HHEADER}", hheader);
+                    
+            });
+        }
+
+        // Function to copy command to clipboard
+        function copyToClipboard(command) {
+            // Replace placeholders with actual values
+            let ip = document.getElementById("ipInput").value || "<IP>";
+            
+            let url = document.getElementById("urlInput").value || "<URL>";
+            let parameter = document.getElementById("parameterInput").value || "<PARAMETER>";
+            let hheader = document.getElementById("hheaderInput").value || "<HHEADER>";
+            
+
+            command = command
+                .replace("{IP}", ip)
+                
+                .replace("{URL}", url)
+                .replace("{PARAMETER}", parameter)
+                .replace("{HHEADER}", hheader);
+                
+
+            // Copy to clipboard
+            navigator.clipboard.writeText(command).then(() => {
+                // Show feedback (tooltip or message)
+                showFeedback("Command copied to clipboard!");
+            }).catch(err => {
+                console.error("Failed to copy: ", err);
+            });
+        }
+
+        // Function to show feedback (e.g., tooltip or message)
+        function showFeedback(message) {
+            let feedback = document.createElement("div");
+            feedback.textContent = message;
+            feedback.style.position = "fixed";
+            feedback.style.bottom = "20px";
+            feedback.style.left = "50%";
+            feedback.style.transform = "translateX(-50%)";
+            feedback.style.backgroundColor = "#4caf50";
+            feedback.style.color = "#fff";
+            feedback.style.padding = "10px 20px";
+            feedback.style.borderRadius = "5px";
+            feedback.style.zIndex = "1000";
+            feedback.style.boxShadow = "0 2px 10px rgba(0, 0, 0, 0.3)";
+            document.body.appendChild(feedback);
+
+            // Remove feedback after 2 seconds
+            setTimeout(() => {
+                feedback.remove();
+            }, 2000);
+        }
+
+        // Initialize commands on page load
+        document.addEventListener("DOMContentLoaded", updateCommands);
+    </script>
+</head>
+<body>
+    <!-- Side Navigation -->
+    <div class="side-nav">
+        <h2>Categories</h2>
+        <ul>
+            <li><a href="index.html">Main</a></li>
+            <li><a href="#gobuster">Gobuster</a></li>
+            <li><a href="#web">FFUF</a></li>
+            <li><a href="#extra">Extra</a></li>
+            <li><a href="C:\Users\perse\Desktop\Github_Project\HTB\login-br.html" target="_blank">Bruteforce Web</a></li>
+        
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <h2>Web Enumeration</h2>
+        <label for="ipInput">Target IP:</label>
+        <input type="text" id="ipInput" placeholder="e.g., 192.168.1.100" oninput="updateCommands()">
+        
+    
+        
+        <label for="urlInput">Target URL:</label>
+        <input type="text" id="urlInput" placeholder="e.g., http://10.129.203.7/" oninput="updateCommands()">
+
+        <label for="parameterInput">Target Parameter:</label>
+        <input type="text" id="parameterInput" placeholder="id or username" oninput="updateCommands()">
+
+        <label for="hheaderInput">Host Header:</label>
+        <input type="text" id="hheaderInput" placeholder="e.g., example.com" oninput="updateCommands()">
+
+
+        <!-- Web Enumeration Section -->
+        <div id="gobuster">
+            <h3>Gobuster directory/file Enumeration</h3>
+            <div class="command-container">
+                <!-- Gobuster - Directories -->
+                <div class="description">
+                    <strong>Web Directory Enumeration:</strong> Enumerates directories on a web server to discover hidden paths.
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="gobuster dir -u {URL} -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt -k -t 30 -o dir_gobuster">gobuster dir -u <URL> -w raft-medium-directories.txt</span>
+                    <button onclick="copyToClipboard('gobuster dir -u {URL} -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt -k -t 30 -o dir_gobuster')">📄</button>
+                </div>
+
+                <!-- Gobuster - Files -->
+                <div class="description">
+                    <strong>Web File Enumeration:</strong> Enumerates files on a web server to discover hidden resources.
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="gobuster dir -u {URL} -w /usr/share/seclists/Discovery/Web-Content/raft-medium-files.txt -k -t 30 -o file_gobuster">gobuster dir -u <URL> -w raft-medium-files.txt</span>
+                    <button onclick="copyToClipboard('gobuster dir -u {URL} -w /usr/share/seclists/Discovery/Web-Content/raft-medium-files.txt -k -t 30 -o file_gobuster')">📄</button>
+                </div>              
+
+            </div>
+        </div>
+        <!-- FFUF Enumeration Section 1 -->
+        <div id="web">
+            <h3>FFUF Web Enumeration</h3>
+            <div class="command-container">
+                <!-- FFUF - Directories -->
+                <div class="description">
+                    <strong>Web Directory Enumeration:</strong> Enumerates directories on a web server to discover hidden paths.
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="ffuf -u {URL}FUZZ -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt -c"></span>
+                    <button onclick="copyToClipboard('ffuf -u {URL}FUZZ -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt -c')">📄</button>
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="ffuf -u {URL}FUZZ -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt -c"></span>
+                    <button onclick="copyToClipboard('ffuf -u {URL}FUZZ -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt -c')">📄</button>
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="ffuf -u {URL}FUZZ -w /usr/share/wordlists/dirb/big.txt -c"></span>
+                    <button onclick="copyToClipboard('ffuf -u {URL}FUZZ -w /usr/share/wordlists/dirb/big.txt -c')">📄</button>
+                </div>
+
+                <!-- FFUF - Files -->
+                <div class="description">
+                    <strong>Web File Enumeration:</strong> Enumerates files on a web server to discover hidden resources.
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="ffuf -u {URL}FUZZ -w /usr/share/seclists/Discovery/Web-Content/raft-medium-files.txt -c"></span>
+                    <button onclick="copyToClipboard('ffuf -u {URL}FUZZ -w /usr/share/seclists/Discovery/Web-Content/raft-medium-files.txt -c')">📄</button>
+                </div>
+
+                <!-- FFUF - Subdomains -->
+                <div class="description">
+                    <strong>Sub-Domain Enumeration:</strong>
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="ffuf -u {URL} -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-110000.txt -c"></span>
+                    <button onclick="copyToClipboard('ffuf -u {URL} -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-110000.txt -c')">📄</button>
+                </div>
+
+                <!-- FFUF - Vhosts -->
+                <div class="description">
+                    <strong>VHOSTS Fuzzing:</strong> Enumerates VHOSTS by fuzzing the host header.
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-110000.txt -u {URL} -H 'Host: FUZZ.{HHEADER}' -c -ac"> </span>
+                    <button onclick="copyToClipboard(`ffuf -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-110000.txt -u {URL} -H 'Host: FUZZ.{HHEADER}' -c -ac`)">📄</button>
+                </div>
+
+                <!-- FFUF - extensions -->
+                <div class="description">
+                    <strong>Extension Fuzzing:</strong> Find out what extensions can be accepted.
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="ffuf -u {URL}indexFUZZ -w /usr/share/seclists/Discovery/Web-Content/web-extensions.txt -c'"> </span>
+                    <button onclick="copyToClipboard(`ffuf -u {URL}indexFUZZ -w /usr/share/seclists/Discovery/Web-Content/web-extensions.txt -c'`)">📄</button>
+                </div>
+
+                <!-- FFUF - parameters -->
+                <div class="description">
+                    <strong>Parameter fuzzing:</strong> Fuzz for GET parameters.
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="ffuf -u {URL}?FUZZ=key -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt -c -ac"></span>
+                    <button onclick="copyToClipboard('ffuf -u {URL}?FUZZ=key -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt -c -ac')">📄</button>
+                </div>
+
+                <!-- FFUF - parameter  -->
+                <div class="description">
+                    <strong>POST method field fuzzing:</strong> Fuzz for POST parameters.
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="ffuf -u {URL} -w /usr/share/seclists/Discovery/Web-Content/burp-parameter-names.txt -X POST -d 'FUZZ=key' -H 'Content-Type: application/x-www-form-urlencoded' -c"></span>
+                    <button onclick="copyToClipboard(`ffuf -u {URL} -w /usr/share/seclists/Discovery/Web-Content/burp-parameter-names.txt -X POST -d 'FUZZ=key' -H 'Content-Type: application/x-www-form-urlencoded' -c `)">📄</button>
+                </div>
+
+                <!-- FFUF - parameter values -->
+                <div class="description">
+                    <strong>POST method Value fuzzing:</strong> Fuzz for POST parameters values.
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="ffuf -u {URL} -w /usr/share/seclists/Usernames/xato-net-10-million-usernames.txt -X POST -d '{PARAMETER}=FUZZ' -H 'Content-Type: application/x-www-form-urlencoded' -c"></span>
+                    <button onclick="copyToClipboard(`ffuf -u {URL} -w /usr/share/seclists/Usernames/xato-net-10-million-usernames.txt -X POST -d '{PARAMETER}=FUZZ' -H 'Content-Type: application/x-www-form-urlencoded' -c `)">📄</button>
+                </div>
+                
+                
+
+            </div>
+        </div>
+
+        
+        <div id="extra">
+            <h3>Extras</h3>
+            <div class="command-container">
+                
+                <div class="description">
+                    <strong>Nmap:</strong> Enumerates web application/services with vuln scripts.
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="sudo nmap -p {PORTS} --script vuln {IP}"><URL></span>
+                    <button onclick="copyToClipboard('sudo nmap -p {PORTS} --script vuln {IP}')">📄</button>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
