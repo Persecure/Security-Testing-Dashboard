@@ -4,6 +4,11 @@
 
 ## Overview
 
+<img width="1100" height="1267" alt="image" src="https://github.com/user-attachments/assets/59b38161-5e0c-46ff-9fa3-6bc3dccd748a" />
+<img width="1182" height="1270" alt="image" src="https://github.com/user-attachments/assets/2d9e01d3-2adb-425f-af0b-56d9936371c0" />
+
+
+
 Tired of constantly typing out repetitive commands during CTFs and security testing? This tool provides a simple web interface to generate common network and Active Directory enumeration commands with just a few clicks. Fill in the required details once, and let the tool generate ready-to-use commands that you can copy and paste instantly.
 
 ## Features
