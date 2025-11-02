@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Test Commands</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+        // Function to update commands dynamically
+        function updateCommands() {
+            let ip = document.getElementById("ipInput").value || "<IP>";
+            let domain = document.getElementById("domainInput").value || "<DOMAIN>";
+            let url = document.getElementById("urlInput").value || "<URL>";
+            let ports = document.getElementById("portsInput").value || "<PORTS>";
+            let commandElements = document.querySelectorAll(".command");
+
+            commandElements.forEach(element => {
+                let baseCommand = element.getAttribute("data-base");
+                element.textContent = baseCommand
+                    .replace("{IP}", ip)
+                    .replace("{DOMAIN}", domain)
+                    .replace("{URL}", url)
+                    .replace("{PORTS}", ports);
+            });
+        }
+
+        // Function to copy command to clipboard
+        function copyToClipboard(command) {
+            // Replace placeholders with actual values
+            let ip = document.getElementById("ipInput").value || "<IP>";
+            let domain = document.getElementById("domainInput").value || "<DOMAIN>";
+            let url = document.getElementById("urlInput").value || "<URL>";
+            let ports = document.getElementById("portsInput").value || "<PORTS>";
+
+            command = command
+                .replace("{IP}", ip)
+                .replace("{DOMAIN}", domain)
+                .replace("{URL}", url)
+                .replace("{PORTS}", ports);
+
+            // Copy to clipboard
+            navigator.clipboard.writeText(command).then(() => {
+                // Show feedback (tooltip or message)
+                showFeedback("Command copied to clipboard!");
+            }).catch(err => {
+                console.error("Failed to copy: ", err);
+            });
+        }
+
+        // Function to show feedback (e.g., tooltip or message)
+        function showFeedback(message) {
+            let feedback = document.createElement("div");
+            feedback.textContent = message;
+            feedback.style.position = "fixed";
+            feedback.style.bottom = "20px";
+            feedback.style.left = "50%";
+            feedback.style.transform = "translateX(-50%)";
+            feedback.style.backgroundColor = "#4caf50";
+            feedback.style.color = "#fff";
+            feedback.style.padding = "10px 20px";
+            feedback.style.borderRadius = "5px";
+            feedback.style.zIndex = "1000";
+            feedback.style.boxShadow = "0 2px 10px rgba(0, 0, 0, 0.3)";
+            document.body.appendChild(feedback);
+
+            // Remove feedback after 2 seconds
+            setTimeout(() => {
+                feedback.remove();
+            }, 2000);
+        }
+
+        // Initialize commands on page load
+        document.addEventListener("DOMContentLoaded", updateCommands);
+    </script>
+</head>
+<body>
+    <!-- Side Navigation -->
+    <div class="side-nav">
+        <h2>Categories</h2>
+        <ul>
+            <li><a href="#host">Host Discovery</a></li>
+            <li><a href="#network">Network Enumeration</a></li>
+            <li><a href="#web">Web Enumeration</a></li>
+            <li><a href="file-transfers.html" target="_blank">File Transfers</a></li>
+            <li><a href="ad-enum.html" target="_blank">Active Directory Enum</a></li>
+            <li><a href="web.html" target="_blank">FFUF Web Enumeration</a></li>
+            <li><a href="windows-privesc.html"target="_blank">Windows PrivSec</a></li>
+            <li><a href="hashdump.html" target="_blank">Windows Hash Dump</a></li>
+
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <h2>Security Testing Commands</h2>
+        <label for="ipInput">Target IP:</label>
+        <input type="text" id="ipInput" placeholder="e.g., 192.168.1.100" oninput="updateCommands()">
+        
+        <label for="domainInput">Source IP:</label>
+        <input type="text" id="domainInput" placeholder="e.g., 10.10.10.1" oninput="updateCommands()">
+        
+        <label for="urlInput">Target URL:</label>
+        <input type="text" id="urlInput" placeholder="e.g., http://10.129.203.7/" oninput="updateCommands()">
+
+        <label for="portsInput">Ports:</label>
+        <input type="text" id="portsInput" placeholder="e.g., 80,443,21,22" oninput="updateCommands()">
+
+        <!-- Host Discovery Section -->
+        <div id="host">
+            <h3>Host Discovery</h3>
+            <div class="command-container">
+                <!-- Ping Command -->
+                <div class="description">
+                    <strong>Ping:</strong> Sends ICMP echo requests to check if the target is alive.
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="ping -c 2 {IP}">ping -c 4 <IP></span>
+                    <button onclick="copyToClipboard('ping -c 2 {IP}')">📄</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Network Enumeration Section -->
+        <div id="network">
+            <h3>Network Enumeration</h3>
+            <div class="command-container">
+                <!-- Quick TCP Scan -->
+                <div class="description">
+                    <strong>Quick TCP Scan:</strong> Scans all TCP ports quickly using SYN scan. Ideal for initial reconnaissance.
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="sudo nmap -p- --min-rate 1500 --max-rtt-timeout 500ms --max-retries 3 --open -T4 -Pn -v -oN quick_tcp_scan {IP}"> </span>
+                    <button onclick="copyToClipboard('sudo nmap -p- --min-rate 1500 --max-rtt-timeout 500ms --max-retries 3 --open -T4 -Pn -v -oN quick_tcp_scan {IP}')">📄</button>
+                </div>
+
+                <div class="description">
+                    <strong>Retrieve ports:</strong> Get the ports for detailed scan
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="awk -F '/' '/^[0-9]+\// {printf &quot;%s,&quot;, $1}' quick_tcp_scan | sed 's/,$/\n/'"> </span>
+                    <button onclick="copyToClipboard('awk -F \'/\' \'/^[0-9]+\\// {printf &quot;%s,&quot;, $1}\' quick_tcp_scan | sed \'s/,$/\\n/\'')">📄</button>
+                </div>
+                <div class="description">
+                    <strong>Add to hosts:</strong> Add hostname/IPs to local hosts file
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="sudo sh -c 'echo &quot;{IP} {URL}&quot; >> /etc/hosts'"></span>
+                    <button onclick="copyToClipboard('sudo sh -c \'echo &quot;{IP} {URL}&quot; >> /etc/hosts\'')">📄</button>
+                </div>
+                
+
+                <!-- Detailed Scan -->
+                <div class="description">
+                    <strong>Detailed Scan:</strong> Performs a deep scan on specified open ports, including service detection, OS detection.
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="sudo nmap -p {PORTS} -A -oN detailed_scan -oX detailed_scan.xml {IP}"></span>
+                    <button onclick="copyToClipboard('sudo nmap -p {PORTS} -A -oN detailed_scan -oX detailed_scan.xml {IP}')">📄</button>
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="xsltproc detailed_scan.xml -o detailed_scan.html"></span>
+                    <button onclick="copyToClipboard('xsltproc detailed_scan.xml -o detailed_scan.html')">📄</button>
+                </div>
+                <div class="description">
+                    <strong>Second Detailed Scan:</strong> Performs a deep scan on specified open ports, using the -sC -sV flags.
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="sudo nmap -p {PORTS} -sC -sV --version-all -oN detailed_2_scan -oX detailed_2_scan.xml {IP}"></span>
+                    <button onclick="copyToClipboard('sudo nmap -p {PORTS} -sC -sV -oN detailed_2_scan -oX detailed_2_scan.xml {IP}')">📄</button>
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="xsltproc detailed_2_scan.xml -o detailed_2_scan.html"></span>
+                    <button onclick="copyToClipboard('xsltproc detailed_2_scan.xml -o detailed_2_scan.html')">📄</button>
+                </div>
+
+                <!-- Full TCP Scan -->
+                <div class="description">
+                    <strong>Full TCP Scan:</strong> Comprehensive scan of all TCP ports with version detection, script scanning, and OS detection.
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="sudo nmap -v -p- -sV -sC -O -sS -Pn --min-rate 1000 --max-retries 1 -T4 --open -oN tcp_full -oX quick_tcp_scan.xml {IP}">nmap -p- -sV -sC <IP></span>
+                    <button onclick="copyToClipboard('sudo nmap -v -p- -sV -sC -O -sS -Pn --min-rate 1000 --max-retries 1 -T4 --open -oN tcp_full -oX quick_tcp_scan.xml {IP}')">📄</button>
+                </div>
+
+                <div class="description">
+                    <strong>Searchsploit:</strong> with nmap.xml
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="searchsploit -x --nmap detailed_scan.xml"> <IP></span>
+                    <button onclick="copyToClipboard('searchsploit -x --nmap detailed_scan.xml')">📄</button>
+                </div>
+
+                <!-- UDP Scan (Common Ports) -->
+                <div class="description">
+                    <strong>UDP Scan (Common Ports):</strong> Scans common UDP ports (e.g., DNS, SNMP) for services running over UDP.
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="sudo nmap -sU -p 53,161,123 --min-rate 100 -oN udp_scan {IP}">nmap -sU -p 53,161,123 <IP></span>
+                    <button onclick="copyToClipboard('sudo nmap -sU -p 53,161,123 --min-rate 100 -oN udp_scan {IP}')">📄</button>
+                </div>
+
+                <!-- UDP Scan (Extended Ports) -->
+                <div class="description">
+                    <strong>UDP Scan (Extended Ports):</strong> Scans a wider range of UDP ports for services like DHCP, SNMP, and more.
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="sudo nmap -sU -p 53,67-69,111,123,135-139,161-162,445,500,514,520,631,1434,1900,4500,5353,49152 --max-retries 1 -T4 -oN udp_common {IP}">nmap -sU -p 53,67-69,... <IP></span>
+                    <button onclick="copyToClipboard('sudo nmap -sU -p 53,67-69,111,123,135-139,161-162,445,500,514,520,631,1434,1900,4500,5353,49152 --max-retries 1 -T4 -oN udp_common {IP}')">📄</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Web Enumeration Section -->
+        <div id="web">
+            <h3>Web Enumeration</h3>
+            <div class="command-container">
+                <!-- Gobuster - Directories -->
+                <div class="description">
+                    <strong>Web Directory Enumeration:</strong> Enumerates directories on a web server to discover hidden paths.
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="gobuster dir -u {URL} -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt -k -t 30 -o dir_gobuster">gobuster dir -u <URL> -w raft-medium-directories.txt</span>
+                    <button onclick="copyToClipboard('gobuster dir -u {URL} -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt -k -t 30 -o dir_gobuster')">📄</button>
+                </div>
+
+                <!-- Gobuster - Files -->
+                <div class="description">
+                    <strong>Web File Enumeration:</strong> Enumerates files on a web server to discover hidden resources.
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="gobuster dir -u {URL} -w /usr/share/seclists/Discovery/Web-Content/raft-medium-files.txt -k -t 30 -o file_gobuster">gobuster dir -u <URL> -w raft-medium-files.txt</span>
+                    <button onclick="copyToClipboard('gobuster dir -u {URL} -w /usr/share/seclists/Discovery/Web-Content/raft-medium-files.txt -k -t 30 -o file_gobuster')">📄</button>
+                </div>
+
+                <div class="description">
+                    <strong>Nmap:</strong> Enumerates web application/services with vuln scripts.
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="sudo nmap -p {PORTS} --script vuln {IP}"><URL></span>
+                    <button onclick="copyToClipboard('sudo nmap -p {PORTS} --script vuln {IP}')">📄</button>
+                </div>
+
+                <div class="description">
+                    <strong>Nmap:</strong> Enumerates web application/services with http & banner scripts.
+                </div>
+                <div class="command-box">
+                    <span class="command" data-base="sudo nmap -p {PORTS} --script=http,banner {IP}"><URL></span>
+                    <button onclick="copyToClipboard('sudo nmap -p {PORTS} --script=http,banner {IP}')">📄</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>
