@@ -1,0 +1,212 @@
+:root {
+    --bg-dark: #121212;
+    --bg-darker: #0a0a0a;
+    --accent-color: #acec0b; /* From the first CSS */
+    --text-primary: #ffffff; /* From the first CSS */
+    --text-secondary: #cccccc; /* From the first CSS */
+    --sidebar-width: 250px;
+}
+
+/* General Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Same font-family as first CSS */
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+    display: flex;
+    min-height: 100vh;
+    font-size: 1rem; /* Added a base font size */
+}
+
+/* Side Navigation */
+.side-nav {
+    width: var(--sidebar-width);
+    background-color: var(--bg-darker);
+    padding: 20px 0;
+    position: fixed;
+    height: 100vh;
+}
+
+.side-nav h2 {
+    color: var(--accent-color);
+    font-size: 1.5rem; /* Kept size, but will inherit font-family */
+    margin: 0 20px 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #333;
+}
+
+.side-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.side-nav ul li {
+    margin-bottom: 0;
+}
+
+.side-nav ul li a {
+    display: flex;
+    align-items: center;
+    padding: 5px 12px; /* From the first CSS */
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: inherit; /* Inherit font size from body */
+    transition: all 0.3s;
+}
+
+.side-nav ul li a i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+
+.side-nav ul li a:hover {
+    background-color: #333;
+    color: var(--accent-color);
+}
+
+/* Main Content */
+.main-content {
+    margin-left: var(--sidebar-width);
+    padding: 30px;
+    width: calc(95% - var(--sidebar-width));
+    max-width: 800px;
+}
+
+/* Input Fields */
+input {
+    margin-bottom: 15px;
+    padding: 10px;
+    width: 100%;
+    font-size: inherit; /* Inherit font size */
+    border-radius: 5px;
+    border: 1px solid #444;
+    background-color: #1e1e1e;
+    color: var(--text-secondary);
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+input:focus {
+    border-color: var(--accent-color);
+}
+
+/* Command Container */
+.command-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+/* Command Box */
+.command-box {
+    display: flex;
+    align-items: center;
+    background-color: #1e1e1e;
+    padding: 12px 10px; /* From the first CSS */
+    border-radius: 5px;
+    margin-bottom: 12px; /* From the first CSS */
+    border-left: 3px solid var(--accent-color);
+    transition: all 0.3s; /* From the first CSS */
+}
+
+.command-box:hover {
+    background-color: #252525;
+    transform: translateX(5px);
+    box-shadow: none;
+}
+
+/* Clipboard Button */
+button {
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: var(--text-secondary);
+    font-size: 1.2rem; /* Kept size, will inherit font-family */
+    padding: 5px 10px;
+    border-radius: 3px;
+    transition: all 0.2s;
+}
+
+button:hover {
+    color: var(--accent-color);
+    transform: scale(1.1);
+}
+
+/* Description Text */
+.description {
+    font-size: 0.85rem; /* Kept size, will inherit font-family */
+    color: var(--text-secondary);
+    margin-bottom: 1px;
+    font-style: italic;
+}
+
+.description strong {
+    color: #457c02;
+}
+
+.description bold {
+    color: #69f3ff;
+}
+
+.description em {
+    color: #20056e;
+}
+
+/* Section Headers */
+h3 {
+    color: #acec0b; /* From the first CSS */
+    font-size: 1.2rem; /* Kept size, will inherit font-family */
+    margin: 15px 0 10px 0; /* From the first CSS */
+    border-bottom: none;
+    padding-bottom: 0;
+    font-weight: 500;
+}
+
+/* Additional new classes from the reference (second CSS) */
+.command-subtitle {
+    color: #538902; /* From the first CSS */
+    margin: 0 0 10px 0;
+    font-size: 1.0rem; /* Kept size, will inherit font-family */
+    font-weight: 600;
+}
+
+.command-description {
+    color: #ee1c1c; /* From the first CSS */
+    font-size: 0.85rem; /* Kept size, will inherit font-family */
+    font-weight: 400;
+    font-style: italic;
+    margin-left: 4px;
+}
+
+.notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: var(--accent-color);
+    color: white;
+    padding: 15px 25px;
+    border-radius: 5px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-weight: bold;
+}
+
+.notification.show {
+    opacity: 1;
+}
+
+@media (max-width: 768px) {
+    .side-nav {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+    }
+}
