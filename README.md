@@ -1,4 +1,4 @@
-# Command Generator Tool 🚀
+# Security Testing Dashboard 🚀
 
 *A work in progress project to streamline CTF and penetration testing workflows, there will be some broken links*
 
